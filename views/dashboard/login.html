@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>学IT - 后台管理系统</title>
-    <?php include "views/public/css.html" ?>
+    <?php include $_SERVER["DOCUMENT_ROOT"]."/views/public/css.html" ?>
 </head>
 <body>
     <!-- 登录 -->
@@ -17,19 +17,76 @@
                     <span class="input-group-addon">
                         <i class="fa fa-user"></i>
                     </span>
-                    <input type="text" class="form-control" placeholder="用户名">
+                    <input value="前端学院" type="text" name="tc_name" class="form-control" placeholder="用户名">
                 </div>
                 <div class="input-group input-group-lg">
                     <span class="input-group-addon">
                         <i class="fa fa-key"></i>
                     </span>
-                    <input type="password" class="form-control" placeholder="密码">
+                    <input value="123456" type="password" name="tc_pass" class="form-control" placeholder="密码">
                 </div>
                 <button type="submit" class="btn btn-lg btn-primary btn-block">登 录</button>
             </form>
         </div>
     </div>
 
-    <?php include "views/public/js.html" ?>
+    <?php include $_SERVER["DOCUMENT_ROOT"]."/views/public/js.html" ?>
+
+
+    <script>
+        $(function () {
+        
+//          1,获取登录按钮，注册事件，
+//          可以对form表单注册submit事件，可以通过enter登录，可以触发登录按钮
+          $("form").submit(function () {
+//            首先判断用户输入是否合法，如果输入为空，则提醒
+             if($("input[name=tc_name]").val().trim() =="" ){
+              alert("请输入用户名");
+              return false;
+            }
+            if($("input[name=tc_pass]").val().trim() =="" ){
+              alert("请输入密码");
+              return false;
+            }
+            
+          
+//            表单序列化，收集表单信息，input需要有name属性，与接口文档一致
+            var data = $(this).serialize();
+//            发送ajax请求
+            $.ajax({
+              
+              url:"/api/login",
+              type:"post",
+              data:data,
+              success:function (data) {
+                console.log(data);
+                if(data.code == 200){
+//                  设置首页的用户头像
+//                  在login中返回的数据中，data.result中有客户的name与头像信息
+//                  由于首页中会用到客户信息，因此可以存储在cookie中，以便于全局可以使用
+//                  由于cookie中只能存储字符串，因此可以先转为字符串，等用到时候在转回对象
+                  console.log(data.result);
+                  $.cookie("userinfo",JSON.stringify(data.result),{path:"/",expires: 365});
+                  
+                  //登录成功，跳转首页,直接修改url地址
+                  location.pathname = "/";
+                  
+                }
+  
+              }
+              
+            })
+            
+            //阻止表单的默认事件，不让表单自己提交信息
+            return false;
+  
+          })
+        
+        
+        })
+    
+    
+    
+    </script>
 </body>
 </html>
